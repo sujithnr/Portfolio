@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>Sujith Naapa Ramesh</title>
+
+  <!-- Bootstrap core CSS -->
+  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom fonts for this template -->
+  <link href="https://fonts.googleapis.com/css?family=Saira+Extra+Condensed:500,700" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Muli:400,400i,800,800i" rel="stylesheet">
+  <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="css/resume.min.css" rel="stylesheet">
+
+</head>
+
+<body id="page-top">
+
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top" id="sideNav">
+    <a class="navbar-brand js-scroll-trigger" href="#page-top">
+      <span class="d-block d-lg-none">Sujith Naapa Ramesh</span>
+      <span class="d-none d-lg-block">
+        <img class="img-fluid img-profile rounded-circle mx-auto mb-2" src="img/profile.jpg" alt="">
+      </span>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link js-scroll-trigger" href="index.html#about">About</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link js-scroll-trigger" href="index.html#experience">Experience</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link js-scroll-trigger" href="index.html#education">Education</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link js-scroll-trigger" href="index.html#resume">Resume</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link js-scroll-trigger" href="index.html#projects">Projects</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link js-scroll-trigger" href="Blogs.html">Blog</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="container-fluid p-0">
+
+    
+  
+  <!-- Portfolio Modals -->
+
+  <!-- Portfolio Modal 1 -->
+  <div class="portfolio-modal mfp-hide" id="portfolio-modal-1">
+    <div class="portfolio-modal-dialog bg-white">
+      <a class="close-button d-none d-md-block portfolio-modal-dismiss" href="Blogs.html">
+        <i class="fa fa-3x fa-times"></i>
+      </a>
+      <div class="container text-center">
+        <div class="row">
+          <div class="col-lg-8 mx-auto">
+            <div class="col-lg-8 col-md-10 mx-auto">
+          <div class="post-heading">
+            <h1>Functioning SPI with DMA</h1>
+            <h2 class="subheading"> The importance of the volatile keyword </h2>
+            <span class="meta">Posted on June 2, 2019</span>  
+          </div>
+        </div>
+          </div>
+		  <article>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+		<br>
+		<br>	
+          <p> This week proved significantly more successful than last week as I was finally able to solve my issue with DMA. I initially thought of the solution I ended up using but for an entirely different reason. The reason I am moving towards a DMA based approach to sending data to the SD card is that I will be able to free up my processor while I am waiting for the DMA to happen so that the processor can continue polling data. I planned on setting a flag to busy while I send the result and clearing the flag during the callback for the DMA request. While I am waiting for the flag value to change, I will simply keep polling data and appending the data to the buffer. </p>
+          
+		  <p> My approach was correct, but as I went to implement this solution, I found that the idea was not working. So, I scaled the solution back and simply tried to implement the DMA part of the code. When I did some more research this week, I realized that the reason my initial approach for DMA TxRx was failing was because I was not waiting for a DMA request to process before sending another DMA request. This was not an issue with the non-DMA implementation because the entire processor was waiting for the SPI request to go through and return before the next request could go through. Also, the continuous DMA TxRx requests were working while using the debugger because I was forcing the debugger to go to the callback for the DMA TxRx request before reaching the line where the next TxRx request was sent. I also think that the DMA Tx requests worked without the wait because the SD card was on the receiving end of the request as opposed to the MCU. So, I am assuming that the data returns to the processor but is not processed by the HAL library. This theory could probably be corroborated with the logic analyzer, but that will probably have to wait for another day. </p>
+		  
+          <p> The busy waiting while waiting for the DMA requests to process is actually quite simple. I relied on using an enum approach that I found in some example code. The enum has three states: TRANSFER_WAIT, TRANFER_COMPLETE, and TRANSFER_ERROR. I simple set the state of the transfer to TRANSFER_WAIT using a uint32_t when sending the request and set the same uint32_t to TRANSFER_COMPLETE. Until the variable is set to TRANSFER_COMPLETE another request of the same type cannot be sent out. So, if I am waiting on a TxRx DMA request to complete, I could theoretically send a Tx request in the meantime and vice-versa, but I can’t imagine why such a situation might come up in my implementation. Another important thing to note is that the uint32_t had an additional modifier of __IO in its declaration. I was not sure what this modifier meant but removing the modifier lead to my code not working. After further research, I found out that __IO is defined as volatile in the STM32 libraries which further explains why my very first iteration of the DMA code did not work. Because I was not using a volatile modifier for my flag, the flag was being stored and read from a register. Therefore, when the callback was editing the flag in the memory, the rest of the program was not using the most recent value of the flag. This has been my first real run in with the volatile keyword in a project. While I had learned about the importance of using volatile in my code, I had not seen the drastic changes in the functionality of my code when omitting the keyword till now. Now, I will be much more careful when dealing with variables that rely on inputs from peripherals. All the code I have written now is on the GitHub repository if you would like to view it. </p>
+		  
+		  <p> For the next week, I would like to incorporate the FatFs library with my code and have a full SPI-DMA implementation with which I can write to an SD card. I was able to get started on this incorporation recently, but I ran into a problem with compiling the STM32CubeMX generated code. Quick online research suggests having to upgrade my version of CubeMX, but I would like to refrain from doing that because the SDIO code seems to be most stable in version 4.21 of CubeMX. However, if worst comes to worst, I will download version 4.22 to another location and try to generate a new project using this version of CubeMX. </p>
+        </div>
+      </div>
+    </div>
+  </article>
+        </div>
+      </div>
+    </div>
+  
+  </div>
+
+  </div>
+  
+  
+
+  <!-- Bootstrap core JavaScript -->
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Plugin JavaScript -->
+  <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+  <!-- Custom scripts for this template -->
+  <script src="js/resume.min.js"></script>
+  
+  
+
+</body>
+
+</html>
