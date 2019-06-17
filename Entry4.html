@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>Sujith Naapa Ramesh</title>
+
+  <!-- Bootstrap core CSS -->
+  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom fonts for this template -->
+  <link href="https://fonts.googleapis.com/css?family=Saira+Extra+Condensed:500,700" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Muli:400,400i,800,800i" rel="stylesheet">
+  <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="css/resume.min.css" rel="stylesheet">
+
+</head>
+
+<body id="page-top">
+
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top" id="sideNav">
+    <a class="navbar-brand js-scroll-trigger" href="#page-top">
+      <span class="d-block d-lg-none">Sujith Naapa Ramesh</span>
+      <span class="d-none d-lg-block">
+        <img class="img-fluid img-profile rounded-circle mx-auto mb-2" src="img/profile.jpg" alt="">
+      </span>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link js-scroll-trigger" href="index.html#about">About</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link js-scroll-trigger" href="index.html#experience">Experience</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link js-scroll-trigger" href="index.html#education">Education</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link js-scroll-trigger" href="index.html#resume">Resume</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link js-scroll-trigger" href="index.html#projects">Projects</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link js-scroll-trigger" href="Blogs.html">Blog</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="container-fluid p-0">
+
+    
+  
+  <!-- Portfolio Modals -->
+
+  <!-- Portfolio Modal 1 -->
+  <div class="portfolio-modal mfp-hide" id="portfolio-modal-1">
+    <div class="portfolio-modal-dialog bg-white">
+      <a class="close-button d-none d-md-block portfolio-modal-dismiss" href="Blogs.html">
+        <i class="fa fa-3x fa-times"></i>
+      </a>
+      <div class="container text-center">
+        <div class="row">
+          <div class="col-lg-8 mx-auto">
+            <div class="col-lg-8 col-md-10 mx-auto">
+          <div class="post-heading">
+            <h1>f_mount issues with FatFs</h1>
+            <h2 class="subheading"> My frustrations with CMD58 and my SD card's unwillingness to communicate with me </h2>
+            <span class="meta">Posted on June 16, 2019</span>  
+          </div>
+        </div>
+          </div>
+		  <article>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+		<br>
+		<br>	
+          <p> This week, I was able to successfully get my code to compile with the FatFs library appended to my preexisting project. As I mentioned last week, I was unable to reach this crucial step as I had suspected that the version of STM32CubeMX I was using to generate the startup code was missing crucial FatFs library files. So, I simply updated the version of CubeMX to 5.2.0 and the code compiled quite easily. I then checked to make sure that the preexisting SPI code with DMA worked with the new library files. Once I was able to confirm the code’s functionality, I committed this version of the project to the GitHub repository where it now remains. </p>
+          
+		  <p> Unfortunately, not much else went right when it came to the rest of the work I did this week. As one might assume, the next logical step in writing to the SD card would be to mount the SD card using the FatFs library, but the library seemed to always return an FR_NOT_READY error. As I stepped through the code, I came upon one key area where the initialization process seemed to fail:  </p>
+		  
+		  <br>
+		  
+		  <img src="img/BlogPost4/CodeSegment.jpg" alt="">
+          
+		  <br>
+		  <br>
+		  
+		  <p> In the SD_SendCmd function, I am passing CMD58 with no additional arguments to the SD card over the SPI bus. CMD58 is the command used to retrieve the OCR register values from the SD card. The contents of the OCR register is shown below. CMD58 has an R3 response type, which means that the response from the SD card comes in the form of five bytes where the first byte is a status byte and the rest of the four bytes form the OCR. The return value for the SD_SendCmd function is shown is the status byte of the transmission, and a status byte of 0x00 implies that the SD card is in a good state. However, I kept receiving a 0x01 from the SD card which implies that the SD card is idling. Therefore, the code never enters the if statement and the four bytes of the OCR are never read. Yet, I am able to see that the SD card returns 0x00, 0xFF, 0x80, 0x00, and then 0xFF. So, I am unsure if the contents of the OCR start from 0x00 or if 0x00 is the status byte and I am supposed to read the next four bytes as my OCR value. I have tried treating the 0x00 as the status byte and ignoring the 0x01 I initially see, but that still causes my code to fail later on when I have to use my type value determined in this section of the code.  </p>
+		  
+		  <br>
+		  
+		  <img src="img/BlogPost4/OCRContents.jpg" alt="" >
+		  
+		  <br>
+		  <br>
+		  <p> I have a few leads on what I can do in the next week to try to fix this issue. First of all, I can try treating 0x00 as the start of the OCR and see what happens. But then I know that the type of the card will be wrong because the card I am using is a Type 10 card, not a Type 2. This issue with the Types is another point of worry for me because I am not sure if the code I am using is even equipped to handle Type 10 cards because type = 10 did not show up anywhere else in the code. However, I am not too worried about this issue because it honestly feels kind of unlikely as of now. Secondly, I can try to slow down the clock an incredible amount so that the SD card won’t idle before sending the OCR, but I am already down to a 400kHz clock cycle and the SD card should definitely be able to handle that. Finally, I can try to send the CMD58 command again to see if I reach a different status code and bypass the issue. Maybe just repeating the code will lead to the desired result. </p>
+		  
+		  <p> At this point, I am a little confused with the direction I need to take to solve the project. I am hesitant to change much of the code because it comes from Elm Chan, the creator of FatFs himself. I have posted my question to StackOverflow to see if someone else has had this very issue, but I am not too hopeful about this venue. I am just a first-time poster and this is a niche problem, so I am not sure if people will be inclined to answer me. Either way I will keep plugging away at the project and hope to provide some more promising results next week.  </p>
+        </div>
+      </div>
+    </div>
+  </article>
+        </div>
+      </div>
+    </div>
+  
+  </div>
+
+  </div>
+
+
+  <!-- Bootstrap core JavaScript -->
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Plugin JavaScript -->
+  <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+  <!-- Custom scripts for this template -->
+  <script src="js/resume.min.js"></script>
+  
+  
+
+</body>
+
+</html>
