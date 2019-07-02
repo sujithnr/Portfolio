@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>Sujith Naapa Ramesh</title>
+
+  <!-- Bootstrap core CSS -->
+  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom fonts for this template -->
+  <link href="https://fonts.googleapis.com/css?family=Saira+Extra+Condensed:500,700" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Muli:400,400i,800,800i" rel="stylesheet">
+  <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="css/resume.min.css" rel="stylesheet">
+
+</head>
+
+<body id="page-top">
+
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top" id="sideNav">
+    <a class="navbar-brand js-scroll-trigger" href="#page-top">
+      <span class="d-block d-lg-none">Sujith Naapa Ramesh</span>
+      <span class="d-none d-lg-block">
+        <img class="img-fluid img-profile rounded-circle mx-auto mb-2" src="img/profile.jpg" alt="">
+      </span>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link js-scroll-trigger" href="index.html#about">About</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link js-scroll-trigger" href="index.html#experience">Experience</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link js-scroll-trigger" href="index.html#education">Education</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link js-scroll-trigger" href="index.html#resume">Resume</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link js-scroll-trigger" href="index.html#projects">Projects</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link js-scroll-trigger" href="Blogs.html">Blog</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="container-fluid p-0">
+
+    
+  
+  <!-- Portfolio Modals -->
+
+  <!-- Portfolio Modal 1 -->
+  <div class="portfolio-modal mfp-hide" id="portfolio-modal-1">
+    <div class="portfolio-modal-dialog bg-white">
+      <a class="close-button d-none d-md-block portfolio-modal-dismiss" href="Blogs.html">
+        <i class="fa fa-3x fa-times"></i>
+      </a>
+      <div class="container text-center">
+        <div class="row">
+          <div class="col-lg-8 mx-auto">
+            <div class="col-lg-8 col-md-10 mx-auto">
+          <div class="post-heading">
+            <h1>Slight Success with FatFs</h1>
+            <h2 class="subheading"> I am now able to write to SD cards but my implemtation is still flummoxed by SDHC cards </h2>
+            <span class="meta">Posted on July 1, 2019</span>  
+          </div>
+        </div>
+          </div>
+		  <article>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+		<br>
+		<br>	
+          <p> I am so sorry for the long delay between my last post and this one. I did not mean for the time between my two posts to get that long, but unfortunately, I was not able to make significant progress with my issue with f_mount until now. As a recap, I was trying to incorporate the FatFs module to my preexisting SPI code but I was unable to mount the SD card. I figured out that the issue seemed to be arising from when I was sending CMD58 to the SD card after the initialization process to find out the value of the CCS bit, bit 30, from the OCR register. The CCS bit indicates whether the SD card is a high capacity, SDHC, card or not, but the CCS bit is only valid if bit 31 is set high to indicate that the power up sequence is completed. Despite using a high capacity card, the CCS bit was not set, but more importantly, bit 31 was not set either. Also, the first byte of the response from the high capacity SD card was 0x01 which indicates that the SD card is idle, while 0x00 was expected.. </p>
+          
+		  <p> I decided to tackle the SD card idling problem first through a myriad of ways. I changed the clock frequency to 100 kHz, I removed the DMA part of the SPI implementation, I put in massive delays after CMD58 before trying to receive data, I sent dozens of empty clock cycles between sending out CMD58 and trying to retrieve the response, I sent CMD58 before sending ACMD51 and then once after, and I even repeatedly sent CMD58 up to a thousand times to the SD card hoping for a different first byte response. But unfortunately, the SD card kept repeating 0x01 as the first byte of the response. I found this result to be quite concerning because I was not sure why the SD card refused to initialize on the very last instruction of the initialization sequence. Additionally, my online research showed that although other people were not quite sure of why their CMD58 responses started off with 0x01, the rest of their response, 0x00, 0xFF, 0x80, and 0x00 matched the rest of my response despite having different cards.  </p>
+		  
+          <p> In a fit of desperation, I decided to try some of the 1 GB, normal, non-high capacity, SD cards I had on store and surprisingly CMD58 returned the desired response of 0x00. Keep in mind that the first time I sent CMD58, I still received 0x01 for the first byte of my response as expected, but the second time I send CMD58, I received 0x00 as desired. I decided to keep pushing forward with the rest of the FatFs library implementation on these cards, and initially I received spotty results. The card kept “freezing” every other time the code was ran and the file was not being written to despite being created on the SD card. But these problems were fixed by ensuring that the file being worked on was closed before being removed from the SD card slot. I did not run into this issue when I was working with the SDHC card and SDIO protocol, but I assume that the newer SDHC card has protections for untimely ejection. Once these problems were fixed, I was able to write data to the SD card successfully.  </p>
+		  
+		  <p> While this is a huge step in the right direction for this project, I still have many issues I need to iron out. First, the SD card is still being driven by a 100 kHz clock cycle and that is simply too slow for a data logging application. I still need to maintain a 100 kHz clock cycle but only during the initialization sequence. After, that I need to increase my clock rate to as fast as my SD card can take to minimize write times. In addition, I have to try to see if using SPI with DMA will still allow me to write to the SD card. Even more importantly, I have to see if I can figure out how to write to SDHC cards in addition to writing to SD cards. Using an SDHC card is of great importance to a data logging project because SDHC cards will last longer before becoming filled up with data. After some research on the internet, I have found a flowchart for SDHC card initialization sequence and some example code to follow. While this code looks remarkably similar to the existing initialization code, I am hoping that some of the subtle difference in the implementations will result in success. Implementing this new initialization code is going to be the next goal that I will be working towards. In the meantime, I have pushed the current FatFs implementation to the GitHub repository.     </p>
+        </div>
+      </div>
+    </div>
+  </article>
+        </div>
+      </div>
+    </div>
+  
+  </div>
+
+  </div>
+  
+  
+
+  <!-- Bootstrap core JavaScript -->
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Plugin JavaScript -->
+  <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+  <!-- Custom scripts for this template -->
+  <script src="js/resume.min.js"></script>
+  
+  
+
+</body>
+
+</html>
