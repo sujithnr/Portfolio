@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>Sujith Naapa Ramesh</title>
+
+  <!-- Bootstrap core CSS -->
+  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom fonts for this template -->
+  <link href="https://fonts.googleapis.com/css?family=Saira+Extra+Condensed:500,700" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Muli:400,400i,800,800i" rel="stylesheet">
+  <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="css/resume.min.css" rel="stylesheet">
+
+</head>
+
+<body id="page-top">
+
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top" id="sideNav">
+    <a class="navbar-brand js-scroll-trigger" href="#page-top">
+      <span class="d-block d-lg-none">Sujith Naapa Ramesh</span>
+      <span class="d-none d-lg-block">
+        <img class="img-fluid img-profile rounded-circle mx-auto mb-2" src="img/profile.jpg" alt="">
+      </span>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link js-scroll-trigger" href="index.html#about">About</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link js-scroll-trigger" href="index.html#experience">Experience</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link js-scroll-trigger" href="index.html#education">Education</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link js-scroll-trigger" href="index.html#resume">Resume</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link js-scroll-trigger" href="index.html#projects">Projects</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link js-scroll-trigger" href="Blogs.html">Blog</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="container-fluid p-0">
+
+    
+  
+  <!-- Portfolio Modals -->
+
+  <!-- Portfolio Modal 1 -->
+  <div class="portfolio-modal mfp-hide" id="portfolio-modal-1">
+    <div class="portfolio-modal-dialog bg-white">
+      <a class="close-button d-none d-md-block portfolio-modal-dismiss" href="Blogs.html">
+        <i class="fa fa-3x fa-times"></i>
+      </a>
+      <div class="container text-center">
+        <div class="row">
+          <div class="col-lg-8 mx-auto">
+            <div class="col-lg-8 col-md-10 mx-auto">
+          <div class="post-heading">
+            <h1>Finishing up Initial SPI DAQLiteFirmware Code</h1>
+            <h2 class="subheading"> Tying together loose ends with SD card writing and ADC conversion </h2>
+            <span class="meta">Posted on July 11, 2019</span>  
+          </div>
+        </div>
+          </div>
+		  <article>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+		<br>
+		<br>	
+          <p> This post is the last one I will make about the DAQLiteFirmware that I will make for quite some time. I think that I have finally reached a logical stopping point for the firmware. I think spending any more time working on firmware for the Discovery board will not be a wise investment because the custom PCB will bring a whole host of other issues specific to the PCB. Also, in the last week, I was able to solve a lot of small issues with the project that took an ample amount of time and effort, so I don’t think I will be able to present all of my failed attempts in this single post. I will simply refer to the issue, the solution, and a short explanation of how I reached the solution. </p>
+
+      <p> At the time that I posted my last blog entry, I had figured out the issue with CMD58. Well sort of. At that time, I kind of realized that there was no issue with Elm Chan’s use of CMD58 if I was using old normal capacity SD cards. But when I moved up to the high capacity SD cards, SDHC, the card simply refused to initialize and always returned that it was idling. After digging through some of the SD simplified specification and reading blog posts on the issue. I realized that the standard had changed a little bit from the Elm Chan implementation I was using. The CRC byte, which I was sending at the end of every transmission to check that I had an accurate transmission, is only a seven-bit value. The manual specifies that the least significant bit had to be set to one always. So, I simply bitwise ORed the CRC with 0x01 to set the least significant bit to 1. Once I did that, Elm Chan’s code seemed to work flawlessly with writing to the card. The code even worked when I invoked the DMA transfers, which I was satisfied with. </p>
+      
+          <p> After I was able to write to the SD card, I moved on to trying to speed up the CLK frequency to send data to the SD card as fast as possible. I had read that the SD card had to be communicated with between 100 kHz and 400 kHz during initialization and then the communication could be sped up to a much faster frequency. I knew that the SPI1 peripheral I was using on the Discovery board was connected to the APB2 clock, which is capped out at 90 MHz. I also knew that I had a prescaler that I could change up to 16. So, whatever clock frequency I settled on, I could use a prescaler of 16 and divide the clock frequency by 16 during initialization and then set the clock frequency back to its maximum value when the rest of the code was being run. Because I was bounded at the bottom by 400 kHz, I initially settled for a CLK frequency of 6.4 MHz during normal operation. While these CLK frequency settings worked quite well, I was met with a problem. The ADC channels I would be using were connected to the same clock as the SPI peripheral and had to be set to at least 1.25 MHz. So, that meant that my initialization code had to be run at 1.25 MHz as well. Naturally, I was quite worried about such a high CLK frequency, but I still decided to see if the SD cards would initialize and run. Surprisingly, my normal SD cards and SDHC card all initialized and communicated with my Discovery Board with no issues. This leads me to believe that the 400kHz limit is a bit of an underestimate for the maximum CLK frequency during initialization of the SD card. </p>
+
+      <p> The last step for the project was connecting my analog inputs to ADC channels, polling their data, and writing to an SD card. This step took a surprising amount of time because of the way in which the STM32F429 chip’s ADC was designed. Because I was using multiple analog inputs, I would need to utilize multiple ADC channels to read my data. However, each ADC in the STM32 commits a conversion to a single 16-bit data register. Having a single data register hold ADC conversions is quite inconvenient because there is no way to tell which channel the data in the register came from. Luckily, the STM32 chip designers provided a work around for this issue: the ADC enables a DMA operation to write conversion values from the 16-bit register to specific locations in memory. So, if I specify the memory location I want the ADC to write to for each of my channel, I can then go back in and read the value when I want to. Also, setting up the ADC in circular mode allows the ADC to write repeatedly to the memory locations after reading ADC entries from the various channels. This way, I can simply read the memory locations every 500ms to “poll” the ADC. In fact, in my implementation, I simply checked the memory locations every 500ms, wrote all the data values and the approximate time I read the memory locations to a buffer of twenty such readings. I then flush all the data out to the SD card in a single for loop once the buffer is full. My timing for the readings is definitely not great as I am simply using multiples of 500ms while roughly accounting for the time taken to write all twenty readings to the SD card. When I write the final implementation for my PCB, I will accurately measure the run times for the readings and buffer flushing. I will do this by toggling a GPIO before and after the specific code sections and then measure the time using an oscilloscope. However, at this time, I feel that such an exercise is unnecessary as the provisions for the accurate run time values have already been made in the code. I will simply have to measure the run times when I get the PCB finished and the firmware finalized. </p>
+      
+      <p> At this point, you may notice that I haven’t taken the same care to round out the ADC code for the SDIO part of the project. I decided against doing such a thing because the code would be incredibly similar to the ADC use in the SPI part of the project. In fact, the code would be exactly the same, so I would not find much educational value in redoing my work again. So, I think that I am now done writing code for DAQLite for at least the next couple weeks. I will try to move on to other tasks at hand like revisiting the DAQLite PCB before I come back to take another bite of the firmware. And as always, the most recent code changes have been pushed to the GitHub repository. </p>
+        </div>
+      </div>
+    </div>
+  </article>
+        </div>
+      </div>
+    </div>
+  
+  </div>
+
+  </div>
+  
+  
+
+  <!-- Bootstrap core JavaScript -->
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Plugin JavaScript -->
+  <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+  <!-- Custom scripts for this template -->
+  <script src="js/resume.min.js"></script>
+  
+  
+
+</body>
+
+</html>
