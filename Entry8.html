@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>Sujith Naapa Ramesh</title>
+
+  <!-- Bootstrap core CSS -->
+  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom fonts for this template -->
+  <link href="https://fonts.googleapis.com/css?family=Saira+Extra+Condensed:500,700" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Muli:400,400i,800,800i" rel="stylesheet">
+  <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="css/resume.min.css" rel="stylesheet">
+
+</head>
+
+<body id="page-top">
+
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top" id="sideNav">
+    <a class="navbar-brand js-scroll-trigger" href="#page-top">
+      <span class="d-block d-lg-none">Sujith Naapa Ramesh</span>
+      <span class="d-none d-lg-block">
+        <img class="img-fluid img-profile rounded-circle mx-auto mb-2" src="img/profile.jpg" alt="">
+      </span>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link js-scroll-trigger" href="index.html#about">About</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link js-scroll-trigger" href="index.html#experience">Experience</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link js-scroll-trigger" href="index.html#education">Education</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link js-scroll-trigger" href="index.html#resume">Resume</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link js-scroll-trigger" href="index.html#projects">Projects</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link js-scroll-trigger" href="Blogs.html">Blog</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="container-fluid p-0">
+
+    
+  
+  <!-- Portfolio Modals -->
+
+  <!-- Portfolio Modal 1 -->
+  <div class="portfolio-modal mfp-hide" id="portfolio-modal-1">
+    <div class="portfolio-modal-dialog bg-white">
+      <a class="close-button d-none d-md-block portfolio-modal-dismiss" href="Blogs.html">
+        <i class="fa fa-3x fa-times"></i>
+      </a>
+      <div class="container text-center">
+        <div class="row">
+          <div class="col-lg-8 mx-auto">
+            <div class="col-lg-8 col-md-10 mx-auto">
+          <div class="post-heading">
+            <h1> CloudandCard </h1>
+            <h2 class="subheading"> My return to the ESP8266 and some additional tasks   </h2>
+            <span class="meta">Posted on July 27, 2019</span>  
+          </div>
+        </div>
+          </div>
+		  <article>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+		<br>
+		<br>	
+      <p>  spent much of the last week focusing my efforts on different efforts again, but yet again, I was able to learn a lot of things from this week. I focused a lot of my efforts once again on working through <i>The C Programming Language </i> book again this week. I completed all the exercises in Chapter 2 this week and finished a third of the exercises in Chapter 3. As a result, I was able to get a more fundamental understanding of type casting and priority of operators. Chapter 3 seems to be more about the control flow and general programming structure within a function. I am excited to see what the next couple exercises and chapters will propose for me. As always, I have pushed all the code for the exercises I have written to GitHub. Also, I have worked my way through most of the third chapter of the <i>Beginning STM32</i> textbook. I hope to work through more the textbook in the next week. </p>
+
+      <p> In addition, I have started working on a new side project that I would like to call CloudandCard. My inspiration for this project and its unique name came during my Microelectronics lab last semester; my partners and I always seemed to have trouble figuring out the best way of sharing the lab data with each other. While I preferred for all the data to be uploaded onto the cloud, like on Google Drive, my partners preferred having a copy of the data saved on a flash drive. After working with the versatile ESP8266 WiFi module, I had the idea of incorporating both approaches into one product. I envisioned a way in which I would be able to pass the contents of a file through serial from a Linux PC to the ESP8266 module and the ESP8266 will then write the data to an SD card and Google Drive. The ESP8266 will in theory be able to get data to a server because of its ability to connect to servers over a WiFi network. I have explored this feature in a previous Make-a-thon project that was incredibly successful, Twitch Does Art. Furthermore, I have had a fair bit of experience with writing to an SD card from an MCU, so I was confident that I would be able to make decent headway with this project. I am specifically using a Feather Huzzah board for this project for now because the board takes care of power management and USB to serial data communication. </p>
+
+      <p> So, I began writing the code that would allow me to send files to the ESP8266 through serial. The Feather Huzzah board, which houses the ESP8266, has a CP2104 USB-Serial Converter that is used to program the ESP8266. This CP2014 module is connected to the serial pins on the ESP8266 so flashing a program and using the serial pins at the same time is not possible. But then again, I do not need to use the serial pins while I am flashing the board, I just have to make sure that I don’t float a voltage on to the serial pins while flashing programs. However, when I do want to use the serial pins on the board and connect them to my Linux PC, I need to use an FTDI cable that converts USB signals to serial and serial signals to USB. Once I have my FTDI cable connected, it is actually quite easy to write to the ESP8266 through a USB port. First, I have to find out which USB port I am connected to by running a dmesg command on the terminal. dmesg is used to read messages from the kernel and once you connect to a USB port, dmesg will show which port you have just connected to. Once I figure out what port I have connected the FTDI cable to, in my case either USB0 or USB1, I can simply write lines tusing echo to /dev/ttyUSBx where x is the port number. It really is that simple, but first I just have to make sure that I have the same baud rate set between the ESP8266 and the PC port. I can set the baud rate for the PC using the stty command. And reading from the ESP8266 is as simple as using a cat command to read from /dev/ttyUSBx. For more information on writing and reading from a USB port, read this <a href=https://unix.stackexchange.com/questions/117037/how-to-send-data-to-a-serial-port-and-see-any-answer>StackExchange post </a>. </p>
+      
+      <p> As for reading and writing data over serial on the ESP8266, I simply have to use the Serial.readString()  and Serial.println() commands. Interestingly enough, the entire transmission, regardless of how many lines of data are sent, count as one string. And no matter how long I take to send out a response byte, the PC only recognizes the response byte. That is, the PC seems to extract useful data automatically from the bus based on the serial packet structure. Now, I just need to figure out a proper checksum methodology so that I can ensure that my transmission was successful. Then, I will be done with a significant chunk of the project, which involves getting data to the ESP8266 to process. I will look towards implementing the other features in the near future, but as for now, my progress has been pushed to a GitHub repository called CloudandCard. </p>
+    
+    </div>
+      </div>
+    </div>
+  </article>
+        </div>
+      </div>
+    </div>
+  
+  </div>
+
+  </div>
+  
+  
+
+  <!-- Bootstrap core JavaScript -->
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Plugin JavaScript -->
+  <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+  <!-- Custom scripts for this template -->
+  <script src="js/resume.min.js"></script>
+  
+  
+
+</body>
+
+</html>
