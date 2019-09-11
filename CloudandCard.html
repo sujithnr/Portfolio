@@ -74,18 +74,17 @@
       <div class="container text-center">
         <div class="row">
           <div class="col-lg-8 mx-auto">
-            <h2 class="text-secondary text-uppercase mb-0">DAQLite</h2>
-            <img class="img-fluid mb-5" src="img/portfolio/DAQLite.JPG" alt="">
-            <p class="mb-5">The purpose of this project was to design a simplified data logging system for the Cornell Baja Racing Team. The work I did on this project builds upon the previous systems I have designed for Cornell Baja, but ultimately, this system is more sophisticated and in theory easier to use. In previous versions of data logging systems, users had to rely on a TCP connection between the data acquisition system and host computer to gather log files, which is an unintuitive process. The new system I have designed will use an STM32 microcontroller to poll data from sensors and write the data directly to an SD card. The solution I have now settled upon is called the DAQLite which stands for Data Acquisition Lite.</p>
-			<p class = "mb-5">As of now, I have developed the code for writing to the SD card on an STM32 Discovery Board which uses the same MCU that will be used on the project. I decided on two approaches for writing the firmware: using the SDIO bus and the SPI bus to write to the SD card. The STM32F4 MCU I used on the project comes with a native SDIOMMC controller which makes writing to the SD card over the SDIO bus incredibly fast and convenient. However, debugging the SDIO bus is incredibly painstaking as there are not a lot of resources on the SDIO bus online. To circumvent this issue, I have also concurrently began developing firmware for writing to an SD card over the SPI bus. Although the SPI bus is significantly slower than the SDIO there are far more resources on the SPI bus then there are on the SDIO bus. As of now, I have been able to write data to an SD card over both the SDIO bus and SPI bus with DMA. In addition, I have filled out the rest of the project with the necessary ADC and timer implementations to have a fully functional data acquisition unit. Click on the Git logo to continue to the public repository where I have uploaded my code.</p>
-            <div class="social-icons">
-				<a href="https://github.com/sujithnr/DAQLiteFirmware" target="_blank">
+            <h2 class="text-secondary text-uppercase mb-0">CloudandCard</h2>
+            <img class="img-fluid mb-5" src="img/portfolio/CloudandCard.jpg" alt="">
+      <p class = "mb-5"> I designed this product because I could not find any products that would allow me to transfer files to an external memory device and the cloud at the same time. During my labs, I wanted to be able to access data through the ease of a flash drive or an SD card, but also have the security of backing up my data on the cloud. I figured that this was an interesting enough use case to try prototyping a product that would be able to read in data from a PC and save it to an SD card and Google Drive. I had already worked with writing data to an SD card through my DAQLite project so I was confident that I would be able to get that part of the project to work. But, I was somewhat unsure about how the Google Drive implementation would fall together. In the past, I had experience working with an ESP8266 on a Feather Huzzah board to add IoT capabilities to a robot, I figured I would be able to use this diverse MCU to be able to connect with Google Drive over a WiFi connection. Luckily, I was able to find many libraries and implementations that would allow me to pass data to Google Drive through an ESP8266.</p>
+      <p class = "mb-5"> As of now, I have been working with a USB port on an Ubuntu laptop and FTDI cable to  pass data between my PC and the Feather Huzzah. I have been able to get reliable communication between the two computers by simply reading and writing to a special file corresponding to a USB port through system calls. I am now in the process of implementing my own checksum to ensure that the data I have passed to the Feather Huzzah is in fact entirely correct. In the near future, I hope to get my SD card interface with the Feather Huzzah up and running, and I hope to have the Google Drive connection up soon as well. After that I would like to design a PCB for this project so that I can package up my project a little more nicely. Click on the Git logo to continue to the public repository where I have uploaded my code.</p>  
+			<div class="social-icons">
+				<a href="https://github.com/sujithnr/CloudandCard" target="_blank">
 					<i class="fab fa-github"></i>
 				</a>
 			</div>
+
 			<br>
-		<p class = "mb-5"> I have also designed a first revision of the DAQLite PCB using Altium Designer. This PCB will be printed and brought up in the fall. For more information on the PCB as well as the DAQLite project download the design document I have written for the project: 
-		<a href="downloads/sn438_DAQLite.pdf" download> DAQLite Design Document.<a> </p>
 			<a class="btn btn-primary btn-lg rounded-pill portfolio-modal-dismiss" href="index.html#projects">
 			  <i class="fa fa-close"></i>
               Close Project</a> 
